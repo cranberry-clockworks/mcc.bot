@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Mcc.Bot.Service.Data;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Mcc.Bot.Service
 {
@@ -13,7 +10,7 @@ namespace Mcc.Bot.Service
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().MigrateDatabase().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -22,5 +19,16 @@ namespace Mcc.Bot.Service
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+    }
+
+    public static class IHostExtension
+    {
+        public static IHost MigrateDatabase(this IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            using var context = scope.ServiceProvider.GetRequiredService<ServiceContext>();
+            context.Database.Migrate();
+            return host;
+        }
     }
 }
