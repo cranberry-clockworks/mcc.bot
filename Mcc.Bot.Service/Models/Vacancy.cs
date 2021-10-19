@@ -1,5 +1,4 @@
 using System;
-using Microsoft.EntityFrameworkCore;
 
 namespace Mcc.Bot.Service.Models
 {
@@ -7,7 +6,7 @@ namespace Mcc.Bot.Service.Models
     {
         public Guid Id { get; init; }
         public ulong OwnerUserId { get; init; }
-        public string Title { get; init; }
-        public string Description { get; init; }
+        public string Title { get; init; } = string.Empty;
+        public string Description { get; init; } = string.Empty;
     }
 }

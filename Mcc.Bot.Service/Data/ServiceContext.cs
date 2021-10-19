@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Mcc.Bot.Service.Models;
-using Microsoft.AspNetCore.Builder;
-using System;
 
 namespace Mcc.Bot.Service.Data
 {
