@@ -27,18 +27,24 @@ namespace Mcc.Bot.Service
         {
             Configuration = configuration;
 
-            DatabaseConnectionString = Configuration.GetConnectionString("DatabaseConnection");
+            DatabaseConnectionString = Configuration.GetConnectionString("Database");
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddDbContext<ServiceContext>(
+                            o => o.UseNpgsql(
+                                DatabaseConnectionString,
+                                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
+                            ),
+                            ServiceLifetime.Transient
+                        );
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Service", Version = "v1" });
             });
-            services.AddDbContext<ServiceContext>(o => o.UseSqlServer(DatabaseConnectionString));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

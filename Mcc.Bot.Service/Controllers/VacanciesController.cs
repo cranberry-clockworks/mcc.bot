@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Net.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using Mcc.Bot.Service.Models;
+using Mcc.Bot.Service.Data;
+using System.Linq;
 
 namespace Mcc.Bot.Service.Controllers
 {
@@ -13,10 +14,13 @@ namespace Mcc.Bot.Service.Controllers
     public class VacanciesController : ControllerBase
     {
         ILogger<VacanciesController> _logger;
+        ServiceContext _context;
 
-        public VacanciesController(ILogger<VacanciesController> logger)
+        public VacanciesController(ILogger<VacanciesController> logger, ServiceContext context)
         {
             _logger = logger;
+            _context = context;
+            Console.WriteLine("CTRL");
         }
 
         [HttpGet]
