@@ -34,12 +34,12 @@ namespace Mcc.Bot.Service
         {
 
             services.AddDbContext<ServiceContext>(
-                            o => o.UseNpgsql(
-                                DatabaseConnectionString,
-                                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
-                            ),
-                            ServiceLifetime.Transient
-                        );
+                o => o.UseNpgsql(
+                    DatabaseConnectionString,
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
+                ),
+                ServiceLifetime.Transient
+            );
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -53,7 +53,9 @@ namespace Mcc.Bot.Service
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Service v1"));
+                app.UseSwaggerUI(
+                    c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MCC Bot Service v1")
+                );
             }
 
             app.UseHttpsRedirection();
