@@ -2,11 +2,9 @@
 using Mcc.Bot.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Mcc.Bot.Service.Controllers
@@ -15,13 +13,16 @@ namespace Mcc.Bot.Service.Controllers
     [Route("[controller]")]
     public class VacanciesController : ControllerBase
     {
-        ILogger<VacanciesController> _logger;
-        ServiceContext _context;
+        ILogger<VacanciesController> logger;
+        private readonly IVacancyStorage vacancyStorage;
 
-        public VacanciesController(ILogger<VacanciesController> logger, ServiceContext context)
+        public VacanciesController(
+            ILogger<VacanciesController> logger, 
+            IVacancyStorage vacancyStorage
+        )
         {
-            _logger = logger;
-            _context = context;
+            this.logger = logger;
+            this.vacancyStorage = vacancyStorage;
         }
 
         /// <summary>
@@ -32,15 +33,8 @@ namespace Mcc.Bot.Service.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VacancyHeader>))]
         public async Task<IActionResult> GetAllVacanciesAsync()
         {
-            var vacancies = await _context.Vacancies.Select(
-                v => new VacancyHeader()
-                {
-                    Id = v.Id,
-                    Title = v.Title
-                }
-            ).ToListAsync();
-
-            return Ok(vacancies);
+            var list = await vacancyStorage.ListAllVacanciesHeaders();
+            return Ok(list);
         }
 
         /// <summary>
@@ -54,15 +48,16 @@ namespace Mcc.Bot.Service.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetVacancyDescriptionAsync(Guid id)
         {
-            var result = await _context.Vacancies.FindAsync(id);
-
-            if (result == default)
+            try
             {
-                _logger.LogDebug("Tried to find the vacncy but not found. Id: {VacancyId}", id);
+                var result = await vacancyStorage.GetVacancyByIdAsync(id);
+                return Ok(result);
+            }
+            catch (InvalidOperationException)
+            {
+                logger.LogDebug("Tried to find the vacncy but not found. Id: {VacancyId}", id);
                 return NotFound();
             }
-            
-            return Ok(result);
         }
 
         /// <summary>
@@ -87,10 +82,9 @@ namespace Mcc.Bot.Service.Controllers
                 Created = DateTime.UtcNow
             };
 
-            await _context.Vacancies.AddAsync(v);
-            await _context.SaveChangesAsync();
+            await vacancyStorage.AddVacancyAsync(v);
 
-            _logger.LogDebug("Create new vacancy. Id: {VacancyId}", v.Id);
+            logger.LogDebug("Create new vacancy. Id: {VacancyId}", v.Id);
 
             return Ok();
         }
@@ -101,19 +95,16 @@ namespace Mcc.Bot.Service.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CloseVacancyAsync(Guid id)
         {
-            
-            var delete = await _context.Vacancies.FindAsync(id);
-
-            if (delete == default)
+            try
             {
-                _logger.LogWarning("Tried to close not existing vacancy. Id: {VacancyId}", id);
+                await vacancyStorage.DeleteVacancyByIdAsync(id);
+                return Ok();
+            } 
+            catch (InvalidOperationException)
+            {
+                logger.LogWarning("Tried to close not existing vacancy. Id: {VacancyId}", id);
                 return NotFound();
             }
-
-            _context.Vacancies.Remove(delete);
-            await _context.SaveChangesAsync();
-
-            return Ok();
         }
     }
 }
