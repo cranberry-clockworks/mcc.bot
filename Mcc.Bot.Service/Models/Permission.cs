@@ -1,9 +1,8 @@
-namespace Mcc.Bot.Service.Models
+namespace Mcc.Bot.Service.Models;
+
+public class Permission
 {
-    public class Permission
-    {
-        public ulong UserId;
-        public bool CanGrantPermissions;
-        public bool CanCreateVacancies;
-    }
+    public ulong UserId;
+    public bool CanGrantPermissions;
+    public bool CanCreateVacancies;
 }
