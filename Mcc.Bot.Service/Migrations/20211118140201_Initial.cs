@@ -24,9 +24,9 @@ namespace Mcc.Bot.Service.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OwnerUserId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {

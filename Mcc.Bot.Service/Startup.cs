@@ -33,6 +33,7 @@ namespace Mcc.Bot.Service
                 ServiceLifetime.Transient
             );
             services.AddTransient<IVacancyStorage, VacancyStorage>();
+            services.AddTransient<IPermissionStorage, PermissionStorage>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

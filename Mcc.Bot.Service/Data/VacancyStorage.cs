@@ -10,9 +10,9 @@ namespace Mcc.Bot.Service.Data;
 public interface IVacancyStorage
 {
     Task AddVacancyAsync(Vacancy v);
-    Task DeleteVacancyByIdAsync(Guid vacancyId);
+    Task DeleteVacancyByIdAsync(Guid vacancyId, ulong ownerId);
     Task<IList<VacancyHeader>> ListAllVacanciesHeaders();
-    Task <Vacancy> GetVacancyByIdAsync(Guid vacancyId);
+    Task<Vacancy> GetVacancyByIdAsync(Guid vacancyId);
 }
 
 public class VacancyStorage : IVacancyStorage
@@ -30,13 +30,23 @@ public class VacancyStorage : IVacancyStorage
         await context.SaveChangesAsync();
     }
 
-    public async Task DeleteVacancyByIdAsync(Guid id)
+    public async Task DeleteVacancyByIdAsync(Guid vacancyId, ulong ownerId)
     {
-        var delete = await context.Vacancies.FindAsync(id);
+        var delete = await context.Vacancies.FindAsync(vacancyId);
         if (delete == default)
+        {
             throw new InvalidOperationException(
-                $"The vacancy with given id is not found. Id: {id}"
+                $"The vacancy with given id is not found. Id: {vacancyId}"
             );
+        }
+
+        if (delete.OwnerUserId != ownerId)
+        {
+            throw new AccessViolationException(
+                $"One tries to delete not owned vacancy. Vacacny Id: {vacancyId}. " +
+                $"Requester Id: {ownerId}"
+            );
+        }
 
         context.Vacancies.Remove(delete);
         await context.SaveChangesAsync();

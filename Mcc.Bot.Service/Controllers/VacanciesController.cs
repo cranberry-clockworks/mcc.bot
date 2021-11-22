@@ -1,11 +1,12 @@
-﻿using Mcc.Bot.Service.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Security;
+using System.Threading.Tasks;
+using Mcc.Bot.Service.Data;
 using Mcc.Bot.Service.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Mcc.Bot.Service.Controllers;
 
@@ -15,14 +16,17 @@ public class VacanciesController : ControllerBase
 {
     ILogger<VacanciesController> logger;
     private readonly IVacancyStorage vacancyStorage;
+    private readonly IPermissionStorage permissionStorage;
 
     public VacanciesController(
         ILogger<VacanciesController> logger, 
-        IVacancyStorage vacancyStorage
+        IVacancyStorage vacancyStorage,
+        IPermissionStorage permissionStorage
     )
     {
         this.logger = logger;
         this.vacancyStorage = vacancyStorage;
+        this.permissionStorage = permissionStorage;
     }
 
     /// <summary>
@@ -68,11 +72,17 @@ public class VacanciesController : ControllerBase
     /// <param name="description"></param>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> OpenVacancyAsync(
         [FromForm] ulong ownerUserId, 
         [FromForm] string title, 
         [FromForm] string description)
     {
+        if (! await permissionStorage.CanManageVacancies(ownerUserId))
+        {
+            return Forbid();
+        }
+
         var v = new Vacancy
         {
             Id = Guid.NewGuid(),
@@ -92,18 +102,24 @@ public class VacanciesController : ControllerBase
     [Route("[controller]/{id:guid}")]
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CloseVacancyAsync(Guid id)
+    public async Task<IActionResult> CloseVacancyAsync(Guid vacacnyId, ulong ownerId)
     {
         try
         {
-            await vacancyStorage.DeleteVacancyByIdAsync(id);
+            await vacancyStorage.DeleteVacancyByIdAsync(vacacnyId, ownerId);
             return Ok();
-        } 
+        }
         catch (InvalidOperationException)
         {
-            logger.LogWarning("Tried to close not existing vacancy. Id: {VacancyId}", id);
+            logger.LogWarning("Tried to close not existing vacancy. Id: {VacancyId}", vacacnyId);
             return NotFound();
+        }
+        catch (AccessViolationException)
+        {
+            logger.LogWarning("Tried to close not owned vacancy. Id: {VacancyId}", vacacnyId);
+            return Forbid();
         }
     }
 }
