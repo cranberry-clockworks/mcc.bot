@@ -11,7 +11,9 @@ namespace Mcc.Bot.Service.Migrations
                 name: "Permissions",
                 columns: table => new
                 {
-                    UserId = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
+                    UserId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    CanManagePermissions = table.Column<bool>(type: "boolean", nullable: false),
+                    CanManageVacancies = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -4,10 +4,9 @@ namespace Mcc.Bot.Service.Models;
 
 public class Permission
 {
-    public ulong UserId;
-    public bool CanManagePermissions;
-    public bool CanManageVacancies;
+    public ulong UserId { get; init; }
+    public bool CanManagePermissions { get; set; }
+    public bool CanManageVacancies { get; set; }
 
-    [NotMapped]
     public bool CanBeDeleted => !(CanManagePermissions || CanManageVacancies);
 }

@@ -25,6 +25,12 @@ namespace Mcc.Bot.Service.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(20,0)");
 
+                    b.Property<bool>("CanManagePermissions")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanManageVacancies")
+                        .HasColumnType("boolean");
+
                     b.HasKey("UserId");
 
                     b.ToTable("Permissions");
