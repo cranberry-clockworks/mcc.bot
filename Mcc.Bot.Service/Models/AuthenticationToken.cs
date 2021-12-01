@@ -1,10 +1,10 @@
-using System.Security.Claims;
+using Mcc.Bot.Service.Security;
 
 namespace Mcc.Bot.Service.Models;
 
-public class Identity
+public class AuthenticationToken
 {
-    public ulong UserId { get; init; }
+    public string Secret { get; init; } = string.Empty;
 
     public bool CanManagePermissions { get; set; }
     public bool CanManageVacancies { get; set; }

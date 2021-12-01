@@ -1,5 +1,4 @@
-using Mcc.Bot.Service.Authentication;
-using Mcc.Bot.Service.Authorization;
+using Mcc.Bot.Service.Security;
 using Mcc.Bot.Service.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -17,14 +16,14 @@ public class Startup
     public IConfiguration Configuration { get; }
 
     private string databaseConnectionString;
-    private string signingKey;
+    private Keychain keychain;
 
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
 
         databaseConnectionString = Configuration.GetConnectionString("Database");
-        signingKey = Configuration.GetAuthenticationSigningKey();
+        keychain = new(Configuration.GetAuthenticationSigningKey());
     }
 
     public void ConfigureServices(IServiceCollection services)
@@ -44,16 +43,25 @@ public class Startup
                     ValidateLifetime = false,
 
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = AuthenticationOptions.BuildSigningKey(signingKey)
+                    IssuerSigningKey = keychain.SecurityKey,
                 };
             }
         );
+
         services.AddAuthorization(
-            options => options.AddPolicy(
-                Policices.CanManageVacanciesPolicy,
-                Policices.CanManageVacanciesPolicyBuilder
-            )
+            options =>
+            {
+                options.AddPolicy(
+                    Policices.CanManageVacanciesPolicy,
+                    Policices.CanManageVacanciesPolicyBuilder
+                );
+                options.AddPolicy(
+                    Policices.CanManagePermissionsPolicy,
+                    Policices.CanManagePermissionsPolicyBuilder
+                );
+            }
         );
+
         services.AddDbContext<ServiceContext>(
             options => options.UseNpgsql(
                 databaseConnectionString,
@@ -62,8 +70,10 @@ public class Startup
             ServiceLifetime.Transient
         );
 
+        services.AddSingleton<IKeychain>(keychain);
+        services.AddSingleton<ISecretGenerator, SecretGenerator>();
         services.AddTransient<IVacancyStorage, VacancyStorage>();
-        services.AddTransient<IPermissionStorage, PermissionStorage>();
+        services.AddTransient<ITokenStorage, TokenStorage>();
 
         services.AddControllers();
 

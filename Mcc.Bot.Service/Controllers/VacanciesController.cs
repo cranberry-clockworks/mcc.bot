@@ -1,4 +1,4 @@
-﻿using Mcc.Bot.Service.Authorization;
+﻿using Mcc.Bot.Service.Security;
 using Mcc.Bot.Service.Data;
 using Mcc.Bot.Service.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -17,12 +17,12 @@ public class VacanciesController : ControllerBase
 {
     ILogger<VacanciesController> logger;
     private readonly IVacancyStorage vacancyStorage;
-    private readonly IPermissionStorage permissionStorage;
+    private readonly ITokenStorage permissionStorage;
 
     public VacanciesController(
         ILogger<VacanciesController> logger,
         IVacancyStorage vacancyStorage,
-        IPermissionStorage permissionStorage
+        ITokenStorage permissionStorage
     )
     {
         this.logger = logger;
@@ -47,7 +47,7 @@ public class VacanciesController : ControllerBase
     /// </summary>
     /// <param name="id">A unique id of the vacancy.</param>
     /// <returns>A full description of the vacancy if found.</returns>
-    [Route("[controller]/{id:guid}")]
+    [Route("/{id:guid}")]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Vacancy))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -80,11 +80,6 @@ public class VacanciesController : ControllerBase
         [FromForm] string title,
         [FromForm] string description)
     {
-        if (! await permissionStorage.CanManageVacancies(ownerUserId))
-        {
-            return Forbid();
-        }
-
         var v = new Vacancy
         {
             Id = Guid.NewGuid(),
@@ -101,7 +96,7 @@ public class VacanciesController : ControllerBase
         return Ok();
     }
 
-    [Route("[controller]/{id:guid}")]
+    [Route("/{id:guid}")]
     [HttpDelete]
     [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]

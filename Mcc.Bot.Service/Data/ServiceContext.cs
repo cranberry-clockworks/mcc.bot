@@ -9,13 +9,13 @@ public class ServiceContext : DbContext
     {
     }
 
-    public DbSet<Identity> Identies => Set<Identity>();
+    public DbSet<AuthenticationToken> AuthenticationTokens => Set<AuthenticationToken>();
     public DbSet<Vacancy> Vacancies => Set<Vacancy>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Identity>()
-            .HasKey(p => p.UserId);
+        modelBuilder.Entity<AuthenticationToken>()
+            .HasKey(p => p.Secret);
 
         modelBuilder.Entity<Vacancy>()
             .HasKey(v => v.Id);

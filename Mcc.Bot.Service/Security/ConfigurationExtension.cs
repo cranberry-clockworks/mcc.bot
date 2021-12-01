@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Mcc.Bot.Service.Authentication;
+namespace Mcc.Bot.Service.Security;
 
 public static class ConfigurationExtension
 {

@@ -8,16 +8,16 @@ namespace Mcc.Bot.Service.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Permissions",
+                name: "AuthenticationTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Secret = table.Column<string>(type: "text", nullable: false),
                     CanManagePermissions = table.Column<bool>(type: "boolean", nullable: false),
                     CanManageVacancies = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Permissions", x => x.UserId);
+                    table.PrimaryKey("PK_AuthenticationTokens", x => x.Secret);
                 });
 
             migrationBuilder.CreateTable(
@@ -39,7 +39,7 @@ namespace Mcc.Bot.Service.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Permissions");
+                name: "AuthenticationTokens");
 
             migrationBuilder.DropTable(
                 name: "Vacancies");

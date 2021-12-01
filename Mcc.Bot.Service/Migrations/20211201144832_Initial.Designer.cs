@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Mcc.Bot.Service.Migrations
 {
     [DbContext(typeof(ServiceContext))]
-    [Migration("20211123065227_Initial")]
+    [Migration("20211201144832_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,11 +21,10 @@ namespace Mcc.Bot.Service.Migrations
                 .HasAnnotation("ProductVersion", "5.0.11")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            modelBuilder.Entity("Mcc.Bot.Service.Models.Permission", b =>
+            modelBuilder.Entity("Mcc.Bot.Service.Models.AuthenticationToken", b =>
                 {
-                    b.Property<decimal>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("numeric(20,0)");
+                    b.Property<string>("Secret")
+                        .HasColumnType("text");
 
                     b.Property<bool>("CanManagePermissions")
                         .HasColumnType("boolean");
@@ -33,9 +32,9 @@ namespace Mcc.Bot.Service.Migrations
                     b.Property<bool>("CanManageVacancies")
                         .HasColumnType("boolean");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Secret");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("AuthenticationTokens");
                 });
 
             modelBuilder.Entity("Mcc.Bot.Service.Models.Vacancy", b =>
