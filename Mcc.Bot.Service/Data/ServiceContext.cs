@@ -9,12 +9,12 @@ public class ServiceContext : DbContext
     {
     }
 
-    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<Identity> Identies => Set<Identity>();
     public DbSet<Vacancy> Vacancies => Set<Vacancy>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Permission>()
+        modelBuilder.Entity<Identity>()
             .HasKey(p => p.UserId);
 
         modelBuilder.Entity<Vacancy>()

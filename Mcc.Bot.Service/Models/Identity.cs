@@ -1,10 +1,11 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Claims;
 
 namespace Mcc.Bot.Service.Models;
 
-public class Permission
+public class Identity
 {
     public ulong UserId { get; init; }
+
     public bool CanManagePermissions { get; set; }
     public bool CanManageVacancies { get; set; }
 

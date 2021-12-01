@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security;
-using System.Threading.Tasks;
+﻿using Mcc.Bot.Service.Authorization;
 using Mcc.Bot.Service.Data;
 using Mcc.Bot.Service.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Mcc.Bot.Service.Controllers;
 
@@ -19,7 +20,7 @@ public class VacanciesController : ControllerBase
     private readonly IPermissionStorage permissionStorage;
 
     public VacanciesController(
-        ILogger<VacanciesController> logger, 
+        ILogger<VacanciesController> logger,
         IVacancyStorage vacancyStorage,
         IPermissionStorage permissionStorage
     )
@@ -59,7 +60,7 @@ public class VacanciesController : ControllerBase
         }
         catch (InvalidOperationException)
         {
-            logger.LogDebug("Tried to find the vacncy but not found. Id: {VacancyId}", id);
+            logger.LogDebug("Tried to find the vacancy but not found. Id: {VacancyId}", id);
             return NotFound();
         }
     }
@@ -71,11 +72,12 @@ public class VacanciesController : ControllerBase
     /// <param name="title"></param>
     /// <param name="description"></param>
     [HttpPost]
+    [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> OpenVacancyAsync(
-        [FromForm] ulong ownerUserId, 
-        [FromForm] string title, 
+        [FromForm] ulong ownerUserId,
+        [FromForm] string title,
         [FromForm] string description)
     {
         if (! await permissionStorage.CanManageVacancies(ownerUserId))
@@ -101,6 +103,7 @@ public class VacanciesController : ControllerBase
 
     [Route("[controller]/{id:guid}")]
     [HttpDelete]
+    [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

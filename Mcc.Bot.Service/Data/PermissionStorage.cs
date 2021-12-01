@@ -1,8 +1,8 @@
+using Mcc.Bot.Service.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Mcc.Bot.Service.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Mcc.Bot.Service.Data;
 
@@ -27,14 +27,14 @@ public class PermissionStorage : IPermissionStorage
     }
 
     public Task<bool> CanManagePermissions(ulong userId)
-        => context.Permissions
+        => context.Identies
             .AsNoTracking()
             .Where(p => p.UserId == userId)
             .Select(p => p.CanManagePermissions)
             .FirstOrDefaultAsync();
 
     public Task<bool> CanManageVacancies(ulong userId)
-        => context.Permissions
+        => context.Identies
                 .AsNoTracking()
                 .Where(p => p.UserId == userId)
                 .Select(p => p.CanManageVacancies)
@@ -44,7 +44,7 @@ public class PermissionStorage : IPermissionStorage
         => GrantPermissionAndCreateRecordIfNeeded(
             userId,
             p => p.CanManagePermissions = true,
-            () => new Permission
+            () => new Identity
             {
                 CanManagePermissions = true,
                 CanManageVacancies = true
@@ -61,7 +61,7 @@ public class PermissionStorage : IPermissionStorage
         => GrantPermissionAndCreateRecordIfNeeded(
             userId,
             p => p.CanManageVacancies = true,
-            () => new Permission { CanManageVacancies = true }
+            () => new Identity { CanManageVacancies = true }
         );
 
     public Task RevokePermissionToManageVacancies(ulong userId)
@@ -72,11 +72,11 @@ public class PermissionStorage : IPermissionStorage
 
     private async Task GrantPermissionAndCreateRecordIfNeeded(
         ulong userId,
-        Action<Permission> mutator,
-        Func<Permission> permissionFactory
+        Action<Identity> mutator,
+        Func<Identity> permissionFactory
     )
     {
-        var permission = await context.Permissions.FindAsync(userId);
+        var permission = await context.Identies.FindAsync(userId);
 
         if (permission != null)
         {
@@ -85,7 +85,7 @@ public class PermissionStorage : IPermissionStorage
         else
         {
             var p = permissionFactory();
-            context.Permissions.Add(p);
+            context.Identies.Add(p);
         }
 
         await context.SaveChangesAsync();
@@ -93,10 +93,10 @@ public class PermissionStorage : IPermissionStorage
 
     private async Task RevokePermissionAndDeleteRecordIfNeeded(
         ulong userId,
-        Action<Permission> mutator
+        Action<Identity> mutator
     )
     {
-        var permission = await context.Permissions.FindAsync(userId);
+        var permission = await context.Identies.FindAsync(userId);
 
         if (permission == null)
             return;
@@ -104,7 +104,7 @@ public class PermissionStorage : IPermissionStorage
         mutator(permission);
 
         if (permission.CanBeDeleted)
-            context.Permissions.Remove(permission);
+            context.Identies.Remove(permission);
 
         await context.SaveChangesAsync();
     }
