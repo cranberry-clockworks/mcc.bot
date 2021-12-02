@@ -8,6 +8,4 @@ public class AuthenticationToken
 
     public bool CanManagePermissions { get; set; }
     public bool CanManageVacancies { get; set; }
-
-    public bool CanBeDeleted => !(CanManagePermissions || CanManageVacancies);
 }

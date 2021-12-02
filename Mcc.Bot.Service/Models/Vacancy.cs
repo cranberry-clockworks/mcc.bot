@@ -6,7 +6,7 @@ public class VacancyHeader
 {
     public Guid Id { get; init; }
     public string Title { get; init; } = string.Empty;
-} 
+}
 
 public class Vacancy : VacancyHeader
 {

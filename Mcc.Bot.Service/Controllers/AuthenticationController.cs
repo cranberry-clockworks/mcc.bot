@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 
@@ -37,19 +38,19 @@ public class AuthenticationController : ControllerBase
         );
     }
 
-    [HttpPost("/token")]
+    [HttpPost("Token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AuthenticateAsync(
-        [FromForm] long userId,
-        [FromForm] string secret
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<Cookie>> AuthenticateAsync(
+        [Required][FromForm] long userId,
+        [Required][FromForm] string secret
     )
     {
         var token = await tokenStorage.ConsumeAuthenticationTokenAsync(secret);
         if (token is null)
         {
             logger.LogWarning("Authentication attempt with not emitted key.");
-            return NotFound();
+            return Forbid();
         }
 
         var identity = Policices.From(token);
@@ -68,16 +69,16 @@ public class AuthenticationController : ControllerBase
         });
     }
 
-    [HttpPost("/secret")]
+    [HttpPost("Secret")]
     [Authorize(Policy = Policices.CanManagePermissionsPolicy)]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> EmitTokenAsync(
+    public async Task<ActionResult<string>> EmitTokenAsync(
         bool canManageVacancies = false,
         bool canManagePermissions = false
     )
     {
-        if (!canManagePermissions && !canManageVacancies)
+        if (canManagePermissions == false && canManagePermissions == false)
             return BadRequest("Please pass one of the attributes.");
 
         var secret = secretGenerator.GenerateSecret();
