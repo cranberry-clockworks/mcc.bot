@@ -35,8 +35,8 @@ public class VacanciesController : ControllerBase
     /// </summary>
     /// <returns>Vacancies headers that represent title and the id of the vacancy.</returns>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VacancyHeader>))]
-    public async Task<IActionResult> GetAllVacanciesAsync()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<VacancyHeader>>> GetAllVacanciesAsync()
     {
         var list = await vacancyStorage.ListAllVacanciesHeaders();
         return Ok(list);
@@ -47,11 +47,10 @@ public class VacanciesController : ControllerBase
     /// </summary>
     /// <param name="id">A unique id of the vacancy.</param>
     /// <returns>A full description of the vacancy if found.</returns>
-    [Route("/{id:guid}")]
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Vacancy))]
+    [HttpGet("{id:guid}", Name = nameof(GetVacancyDescriptionAsync))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetVacancyDescriptionAsync(Guid id)
+    public async Task<ActionResult<Vacancy>> GetVacancyDescriptionAsync(Guid id)
     {
         try
         {
@@ -65,25 +64,23 @@ public class VacanciesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Opens a new vacancy.
-    /// </summary>
-    /// <param name="ownerUserId">Sample text goes here...</param>
-    /// <param name="title"></param>
-    /// <param name="description"></param>
     [HttpPost]
     [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> OpenVacancyAsync(
-        [FromForm] ulong ownerUserId,
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<Guid>> OpenVacancyAsync(
         [FromForm] string title,
         [FromForm] string description)
     {
+        var userId = HttpContext.User.Identity?.GetUserId() ?? null;
+        if (userId is null)
+            return BadRequest();
+
         var v = new Vacancy
         {
             Id = Guid.NewGuid(),
-            OwnerUserId = ownerUserId,
+            OwnerUserId = userId.Value,
             Title = title,
             Description = description,
             Created = DateTime.UtcNow
@@ -93,31 +90,28 @@ public class VacanciesController : ControllerBase
 
         logger.LogDebug("Create new vacancy. Id: {VacancyId}", v.Id);
 
-        return Ok();
+        return CreatedAtRoute(nameof(GetVacancyDescriptionAsync), new { id = v.Id }, v);
     }
 
-    [Route("/{id:guid}")]
-    [HttpDelete]
+    [HttpDelete("/{id:guid}")]
     [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CloseVacancyAsync(Guid vacacnyId, ulong ownerId)
+    public async Task<IActionResult> CloseVacancyAsync(Guid id)
     {
         try
         {
-            await vacancyStorage.DeleteVacancyByIdAsync(vacacnyId, ownerId);
+            await vacancyStorage.DeleteVacancyByIdAsync(id);
+
+            logger.LogDebug("Closed vacancy. Id: {VacancyId}", id);
+
             return Ok();
         }
         catch (InvalidOperationException)
         {
-            logger.LogWarning("Tried to close not existing vacancy. Id: {VacancyId}", vacacnyId);
+            logger.LogWarning("Tried to close not existing vacancy. Id: {VacancyId}", id);
             return NotFound();
-        }
-        catch (AccessViolationException)
-        {
-            logger.LogWarning("Tried to close not owned vacancy. Id: {VacancyId}", vacacnyId);
-            return Forbid();
         }
     }
 }

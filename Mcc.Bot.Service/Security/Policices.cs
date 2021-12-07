@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Security.Claims;
+using System.Security.Principal;
 
 namespace Mcc.Bot.Service.Security;
 
@@ -16,22 +17,20 @@ internal static class Policices
     public static readonly Action<AuthorizationPolicyBuilder> CanManagePermissionsPolicyBuilder
         = policy => policy.RequireClaim(canManagePermissionsClaimName, true.ToString());
 
-    private const string userIdClaimName = nameof(AuthenticationToken.Secret);
-
     private const string canManageVacanciesClaimName
         = nameof(AuthenticationToken.CanManageVacancies);
 
     private const string canManagePermissionsClaimName
         = nameof(AuthenticationToken.CanManagePermissions);
 
-    public static ClaimsIdentity From(AuthenticationToken token)
+    public static ClaimsIdentity CreateClaimIdentity(ulong userId, AuthenticationToken token)
     {
-        return new (
+        return new ClaimsIdentity(
             new []
             {
                 new Claim(
-                    userIdClaimName,
-                    token.Secret.ToString()
+                    ClaimTypes.Name,
+                    userId.ToString()
                 ),
                 new Claim(
                     canManageVacanciesClaimName,
@@ -44,5 +43,13 @@ internal static class Policices
             },
             "Token"
         );
+    }
+
+    public static ulong? GetUserId(this IIdentity self)
+    {
+        var name = self.Name;
+        return name is not null
+            ? ulong.TryParse(name, out var userId) ? userId : null
+            : null;
     }
 }

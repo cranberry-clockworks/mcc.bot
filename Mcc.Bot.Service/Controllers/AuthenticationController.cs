@@ -42,7 +42,7 @@ public class AuthenticationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<Cookie>> AuthenticateAsync(
-        [Required][FromForm] long userId,
+        [Required][FromForm] ulong userId,
         [Required][FromForm] string secret
     )
     {
@@ -53,7 +53,7 @@ public class AuthenticationController : ControllerBase
             return Forbid();
         }
 
-        var identity = Policices.From(token);
+        var identity = Policices.CreateClaimIdentity(userId, token);
         var jwt = new JwtSecurityToken(
             issuer: AuthenticationOptions.TokenIssuer,
             audience: AuthenticationOptions.TokenAudience,
