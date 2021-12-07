@@ -8,6 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.IO;
+using System.Reflection;
+using System;
 
 namespace Mcc.Bot.Service;
 
@@ -17,6 +20,13 @@ public class Startup
 
     private string databaseConnectionString;
     private Keychain keychain;
+
+    static string GetXmlCommentsFilePath()
+    {
+        var basePath = AppContext.BaseDirectory;
+        var fileName = typeof(Startup).GetTypeInfo().Assembly.GetName().Name + ".xml";
+        return Path.Combine(basePath, fileName);
+    }
 
     public Startup(IConfiguration configuration)
     {
@@ -80,6 +90,7 @@ public class Startup
         services.AddSwaggerGen(
             c => {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Service", Version = "v1" });
+                c.IncludeXmlComments(GetXmlCommentsFilePath());
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
