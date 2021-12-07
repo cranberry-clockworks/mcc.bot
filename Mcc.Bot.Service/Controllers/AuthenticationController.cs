@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace Mcc.Bot.Service.Controllers;
 
+/// <summary>
+/// Controller to authenticate clients.
+/// </summary>
 [Route("[controller]")]
 [ApiController]
 public class AuthenticationController : ControllerBase
@@ -21,6 +24,9 @@ public class AuthenticationController : ControllerBase
     private readonly ISecretGenerator secretGenerator;
     private readonly SigningCredentials signingCredentials;
 
+    /// <summary>
+    /// Creates controller instance.
+    /// </summary>
     public AuthenticationController(
         ILogger<AuthenticationController> logger,
         ITokenStorage tokenStorage,
@@ -38,6 +44,19 @@ public class AuthenticationController : ControllerBase
         );
     }
 
+    /// <summary>
+    /// Authenticates the user. In case of success authorization the secret can't be used for
+    /// another authentication.
+    /// </summary>
+    /// <param name="userId">
+    /// An unique integer number that identifies the user.
+    /// </param>
+    /// <param name="secret">
+    /// A special string that maps to granted user privileges.
+    /// The secret could be emitted by another user with right to manage permissions.
+    /// Could be used only once to authenticate.
+    /// </param>
+    /// <returns>The authentication token with granted permission for the user.</returns>
     [HttpPost("Token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -69,6 +88,17 @@ public class AuthenticationController : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Emits a new one-time secret that can be given to another user to authenticate.
+    /// </summary>
+    /// <param name="canManageVacancies">
+    /// If the user could create and close vacancies.
+    /// </param>
+    /// <param name="canManagePermissions">
+    /// If the user could emit another tokens and manage
+    /// permission of another users.
+    /// </param>
+    /// <returns></returns>
     [HttpPost("Secret")]
     [Authorize(Policy = Policices.CanManagePermissionsPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
