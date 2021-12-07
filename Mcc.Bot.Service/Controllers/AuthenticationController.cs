@@ -81,11 +81,14 @@ public class AuthenticationController : ControllerBase
         );
 
         var encoded = new JwtSecurityTokenHandler().WriteToken(jwt);
-        return Ok(new
-        {
-            UserId = userId,
-            Token = encoded
-        });
+        return Ok(
+            new Cookie(
+                encoded,
+                userId,
+                token.CanManagePermissions,
+                token.CanManageVacancies
+            )
+        );
     }
 
     /// <summary>
