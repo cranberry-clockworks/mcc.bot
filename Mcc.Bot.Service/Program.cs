@@ -6,7 +6,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace Mcc.Bot.Service;
 
-public class Program
+/// <summary>
+/// A main class of the service application.
+/// </summary>
+internal class Program
 {
     public static void Main(string[] args)
     {
@@ -21,7 +24,7 @@ public class Program
             });
 }
 
-public static class IHostExtension
+internal static class IHostExtension
 {
     public static IHost MigrateDatabase(this IHost host)
     {

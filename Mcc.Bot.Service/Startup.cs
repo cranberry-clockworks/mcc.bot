@@ -14,7 +14,7 @@ using System;
 
 namespace Mcc.Bot.Service;
 
-public class Startup
+internal class Startup
 {
     public IConfiguration Configuration { get; }
 

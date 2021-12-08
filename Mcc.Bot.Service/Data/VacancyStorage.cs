@@ -47,7 +47,7 @@ public interface IVacancyStorage
 /// <summary>
 /// Implementation of the <see cref="IVacancyStorage"/>.
 /// </summary>
-public class VacancyStorage : IVacancyStorage
+internal class VacancyStorage : IVacancyStorage
 {
     private readonly ServiceContext context;
 

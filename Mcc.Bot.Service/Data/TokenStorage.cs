@@ -30,7 +30,7 @@ public interface ITokenStorage
 /// <summary>
 /// Implementation of the <see cref="ITokenStorage"/>.
 /// </summary>
-public class TokenStorage : ITokenStorage
+internal class TokenStorage : ITokenStorage
 {
     private readonly ServiceContext context;
 
