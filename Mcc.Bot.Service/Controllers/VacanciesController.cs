@@ -46,7 +46,7 @@ public class VacanciesController : ControllerBase
     /// </returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<VacancyHeader>>> GetAllVacanciesAsync()
+    public async Task<ActionResult<IEnumerable<VacancyShortDescription>>> GetAllVacanciesAsync()
     {
         var list = await vacancyStorage.ListAllVacanciesHeaders();
         return Ok(list);

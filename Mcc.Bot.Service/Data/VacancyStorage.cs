@@ -32,7 +32,7 @@ public interface IVacancyStorage
     /// Get all short description of the open vacancies.
     /// </summary>
     /// <returns>List of short description of the vacancies.</returns>
-    ValueTask<IList<VacancyHeader>> ListAllVacanciesHeaders();
+    ValueTask<IList<VacancyShortDescription>> ListAllVacanciesHeaders();
 
     /// <summary>
     /// Get full description of the vacancy by given id.
@@ -95,10 +95,10 @@ public class VacancyStorage : IVacancyStorage
     }
 
     /// <inheritdoc />
-    public async ValueTask<IList<VacancyHeader>> ListAllVacanciesHeaders()
+    public async ValueTask<IList<VacancyShortDescription>> ListAllVacanciesHeaders()
     {
         return await context.Vacancies.Select(
-            v => new VacancyHeader()
+            v => new VacancyShortDescription()
             {
                 Id = v.Id,
                 Title = v.Title
