@@ -8,9 +8,14 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace Mcc.Bot.Service.Controllers;
 
+
+/// <summary>
+/// Controller to manage vacancies.
+/// </summary>
 [ApiController]
 [Route("[controller]")]
 public class VacanciesController : ControllerBase
@@ -19,6 +24,9 @@ public class VacanciesController : ControllerBase
     private readonly IVacancyStorage vacancyStorage;
     private readonly ITokenStorage permissionStorage;
 
+    /// <summary>
+    /// Creates instance of the controller.
+    /// </summary>
     public VacanciesController(
         ILogger<VacanciesController> logger,
         IVacancyStorage vacancyStorage,
@@ -31,9 +39,11 @@ public class VacanciesController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all open vacancies.
+    /// Gets short descriptions of all opened vacancies.
     /// </summary>
-    /// <returns>Vacancies headers that represent title and the id of the vacancy.</returns>
+    /// <returns>
+    /// A list of vacancies titles with ids to get detailed description.
+    /// </returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<VacancyHeader>>> GetAllVacanciesAsync()
@@ -43,14 +53,18 @@ public class VacanciesController : ControllerBase
     }
 
     /// <summary>
-    /// Gets full description of the vacancy by its id.
+    /// Gets detailed description about specific vacancy.
     /// </summary>
-    /// <param name="id">A unique id of the vacancy.</param>
-    /// <returns>A full description of the vacancy if found.</returns>
+    /// <param name="id">
+    /// A unique id of the vacancy.
+    /// </param>
+    /// <returns>
+    /// A full description of the vacancy if found.
+    /// </returns>
     [HttpGet("{id:guid}", Name = nameof(GetVacancyDescriptionAsync))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Vacancy>> GetVacancyDescriptionAsync(Guid id)
+    public async Task<ActionResult<Vacancy>> GetVacancyDescriptionAsync([FromRoute] Guid id)
     {
         try
         {
@@ -64,18 +78,33 @@ public class VacanciesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Opens a new vacancy.
+    /// </summary>
+    /// <param name="title">
+    /// A title or short description of the vacancy. Should be non empty.
+    /// </param>
+    /// <param name="description">
+    /// A detailed description of the vacancy.
+    /// </param>
+    /// <returns>
+    /// An id of the new vacancy.
+    /// </returns>
     [HttpPost]
     [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<Guid>> OpenVacancyAsync(
-        [FromForm] string title,
-        [FromForm] string description)
+        [Required][FromForm] string title,
+        [Required][FromForm] string description)
     {
         var userId = HttpContext.User.Identity?.GetUserId() ?? null;
         if (userId is null)
             return BadRequest();
+
+        if (string.IsNullOrEmpty(title))
+            return BadRequest(title);
 
         var v = new Vacancy
         {
@@ -93,12 +122,18 @@ public class VacanciesController : ControllerBase
         return CreatedAtRoute(nameof(GetVacancyDescriptionAsync), new { id = v.Id }, v);
     }
 
-    [HttpDelete("/{id:guid}")]
+    /// <summary>
+    /// Closes the opened vacancy.
+    /// </summary>
+    /// <param name="id">
+    /// An unique id of the vacancy to close.
+    /// </param>
+    [HttpDelete("{id:guid}")]
     [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CloseVacancyAsync(Guid id)
+    public async Task<IActionResult> CloseVacancyAsync([FromRoute] Guid id)
     {
         try
         {
