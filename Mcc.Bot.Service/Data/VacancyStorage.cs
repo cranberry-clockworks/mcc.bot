@@ -7,30 +7,67 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mcc.Bot.Service.Data;
 
+/// <summary>
+/// A storage that holds open vacancies.
+/// </summary>
 public interface IVacancyStorage
 {
-    Task AddVacancyAsync(Vacancy v);
-    Task DeleteVacancyByIdAsync(Guid vacancyId);
-    Task<IList<VacancyHeader>> ListAllVacanciesHeaders();
-    Task<Vacancy> GetVacancyByIdAsync(Guid vacancyId);
+    /// <summary>
+    /// Adds new vacancy to the storage.
+    /// </summary>
+    /// <param name="vacancy">
+    /// A new vacancy to store.
+    /// </param>
+    ValueTask AddVacancyAsync(Vacancy vacancy);
+
+    /// <summary>
+    /// Removes the vacancy by given id.
+    /// </summary>
+    /// <param name="id">
+    /// An id of the removed vacancy.
+    /// </param>
+    ValueTask RemoveVacancyByIdAsync(Guid id);
+
+    /// <summary>
+    /// Get all short description of the open vacancies.
+    /// </summary>
+    /// <returns>List of short description of the vacancies.</returns>
+    ValueTask<IList<VacancyHeader>> ListAllVacanciesHeaders();
+
+    /// <summary>
+    /// Get full description of the vacancy by given id.
+    /// </summary>
+    /// <param name="id">
+    /// An id of the open vacancy.
+    /// </param>
+    /// <returns>A full description of the vacancy.</returns>
+    ValueTask<Vacancy> GetVacancyByIdAsync(Guid id);
 }
 
+/// <summary>
+/// Implementation of the <see cref="IVacancyStorage"/>.
+/// </summary>
 public class VacancyStorage : IVacancyStorage
 {
     private readonly ServiceContext context;
 
+    /// <summary>
+    /// Creates vacancy storage.
+    /// </summary>
     public VacancyStorage(ServiceContext context)
     {
         this.context = context;
     }
 
-    public async Task AddVacancyAsync(Vacancy vacancy)
+    /// <inheritdoc />
+    public async ValueTask AddVacancyAsync(Vacancy vacancy)
     {
         await context.Vacancies.AddAsync(vacancy);
         await context.SaveChangesAsync();
     }
 
-    public async Task DeleteVacancyByIdAsync(Guid vacancyId)
+    /// <inheritdoc />
+    public async ValueTask RemoveVacancyByIdAsync(Guid vacancyId)
     {
         var delete = await context.Vacancies.FindAsync(vacancyId);
         if (delete == default)
@@ -44,7 +81,8 @@ public class VacancyStorage : IVacancyStorage
         await context.SaveChangesAsync();
     }
 
-    public async Task<Vacancy> GetVacancyByIdAsync(Guid id)
+    /// <inheritdoc />
+    public async ValueTask<Vacancy> GetVacancyByIdAsync(Guid id)
     {
         var vacancy = await context.Vacancies.FindAsync(id);
 
@@ -56,7 +94,8 @@ public class VacancyStorage : IVacancyStorage
         return vacancy;
     }
 
-    public async Task<IList<VacancyHeader>> ListAllVacanciesHeaders()
+    /// <inheritdoc />
+    public async ValueTask<IList<VacancyHeader>> ListAllVacanciesHeaders()
     {
         return await context.Vacancies.Select(
             v => new VacancyHeader()

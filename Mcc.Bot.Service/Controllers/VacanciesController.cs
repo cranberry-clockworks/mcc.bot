@@ -137,7 +137,7 @@ public class VacanciesController : ControllerBase
     {
         try
         {
-            await vacancyStorage.DeleteVacancyByIdAsync(id);
+            await vacancyStorage.RemoveVacancyByIdAsync(id);
 
             logger.LogDebug("Closed vacancy. Id: {VacancyId}", id);
 
