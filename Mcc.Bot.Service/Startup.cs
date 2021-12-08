@@ -18,10 +18,7 @@ internal class Startup
 {
     public IConfiguration Configuration { get; }
 
-    private string databaseConnectionString;
-    private Keychain keychain;
-
-    static string GetXmlCommentsFilePath()
+    private static string GetXmlCommentsFilePath()
     {
         var basePath = AppContext.BaseDirectory;
         var fileName = typeof(Startup).GetTypeInfo().Assembly.GetName().Name + ".xml";
@@ -31,32 +28,34 @@ internal class Startup
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
-
-        databaseConnectionString = Configuration.GetConnectionString("Database");
-        keychain = new(Configuration.GetAuthenticationSigningKey());
     }
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(
-            o =>
-            {
-                o.TokenValidationParameters = new()
+        services.AddOptions<AuthenticationOptions>()
+            .Bind(Configuration.GetSection(AuthenticationOptions.AuthenticationSection));
+
+        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .Configure<IKeychain>(
+                (options, keychain) =>
                 {
-                    ValidateIssuer = true,
-                    ValidIssuer = AuthenticationOptions.TokenIssuer,
+                    options.TokenValidationParameters = new()
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = JwtConfigurator.Issuer,
 
-                    ValidateAudience = true,
-                    ValidAudience = AuthenticationOptions.TokenAudience,
+                        ValidateAudience = true,
+                        ValidAudience = JwtConfigurator.Audience,
 
-                    ValidateLifetime = false,
+                        ValidateLifetime = false,
 
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = keychain.SecurityKey,
-                };
-            }
-        );
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = keychain.SigningKey,
+                    };
+                }
+            );
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
         services.AddAuthorization(
             options =>
@@ -74,13 +73,14 @@ internal class Startup
 
         services.AddDbContext<ServiceContext>(
             options => options.UseNpgsql(
-                databaseConnectionString,
+                Configuration.GetConnectionString("Database"),
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
             ),
             ServiceLifetime.Transient
         );
 
-        services.AddSingleton<IKeychain>(keychain);
+        services.AddSingleton<IKeychain, Keychain>();
+
         services.AddSingleton<ISecretGenerator, SecretGenerator>();
         services.AddTransient<IVacancyStorage, VacancyStorage>();
         services.AddTransient<ITokenStorage, TokenStorage>();
@@ -112,7 +112,7 @@ internal class Startup
                                 Id = "Bearer"
                             }
                         },
-                        System.Array.Empty<string>()
+                        Array.Empty<string>()
                     }
                 });
             }

@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 namespace Mcc.Bot.Service.Security;
@@ -11,7 +12,7 @@ public interface IKeychain
     /// <summary>
     /// Gets an common service security key.
     /// </summary>
-    SecurityKey SecurityKey { get; }
+    SecurityKey SigningKey { get; }
 }
 
 /// <summary>
@@ -19,10 +20,11 @@ public interface IKeychain
 /// </summary>
 internal class Keychain : IKeychain
 {
-    public SecurityKey SecurityKey { get; }
+    public SecurityKey SigningKey { get; }
 
-    public Keychain(string signingKey)
+    public Keychain(IOptions<AuthenticationOptions> options)
     {
-        SecurityKey = new SymmetricSecurityKey(Encoding.Unicode.GetBytes(signingKey));
+        var key = options.Value.SigningKey;
+        SigningKey = new SymmetricSecurityKey(Encoding.Unicode.GetBytes(key));
     }
 }

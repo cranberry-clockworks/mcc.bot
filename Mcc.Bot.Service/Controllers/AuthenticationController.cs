@@ -34,12 +34,11 @@ public class AuthenticationController : ControllerBase
         ISecretGenerator secretGenerator
     )
     {
-        this.logger = logger;
         this.tokenStorage = tokenStorage;
         this.secretGenerator = secretGenerator;
 
         signingCredentials = new SigningCredentials(
-            keychain.SecurityKey,
+            keychain.SigningKey,
             SecurityAlgorithms.HmacSha512
         );
     }
@@ -74,8 +73,8 @@ public class AuthenticationController : ControllerBase
 
         var identity = Policices.CreateClaimIdentity(userId, token);
         var jwt = new JwtSecurityToken(
-            issuer: AuthenticationOptions.TokenIssuer,
-            audience: AuthenticationOptions.TokenAudience,
+            issuer: JwtConfigurator.Issuer,
+            audience: JwtConfigurator.Audience,
             claims: identity.Claims,
             signingCredentials: signingCredentials
         );
