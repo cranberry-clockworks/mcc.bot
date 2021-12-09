@@ -18,6 +18,8 @@ internal class Startup
 {
     public IConfiguration Configuration { get; }
 
+    private string DatabaseConnectionString => Configuration.GetConnectionString("Database");
+
     private static string GetXmlCommentsFilePath()
     {
         var basePath = AppContext.BaseDirectory;
@@ -73,7 +75,7 @@ internal class Startup
 
         services.AddDbContext<ServiceContext>(
             options => options.UseNpgsql(
-                Configuration.GetConnectionString("Database"),
+                DatabaseConnectionString,
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
             ),
             ServiceLifetime.Transient
