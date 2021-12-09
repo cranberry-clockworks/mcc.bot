@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Mcc.Bot.Service.Models;
+using Mcc.Bot.Service.Security;
+using Microsoft.Extensions.Options;
 
 namespace Mcc.Bot.Service.Data;
 
 /// <summary>
 /// A database context provider for the service.
 /// </summary>
-public class ServiceContext : DbContext
+internal class ServiceContext : DbContext
 {
     /// <summary>
     /// Creates a database context.
@@ -30,10 +32,5 @@ public class ServiceContext : DbContext
     /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AuthenticationToken>()
-            .HasKey(p => p.Secret);
-
-        modelBuilder.Entity<Vacancy>()
-            .HasKey(v => v.Id);
     }
 }

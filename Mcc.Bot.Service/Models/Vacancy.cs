@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Mcc.Bot.Service.Models;
 
@@ -10,10 +11,11 @@ public class VacancyShortDescription
     /// <summary>
     /// A unique id of the vacancy.
     /// </summary>
+    [Key]
     public Guid Id { get; init; }
 
     /// <summary>
-    /// A title of the vacacny.
+    /// A title of the vacancy.
     /// </summary>
     public string Title { get; init; } = string.Empty;
 }

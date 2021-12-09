@@ -1,4 +1,4 @@
-using Mcc.Bot.Service.Security;
+using System.ComponentModel.DataAnnotations;
 
 namespace Mcc.Bot.Service.Models;
 
@@ -10,6 +10,7 @@ public class AuthenticationToken
     /// <summary>
     /// A special secret string that kept by user and used by him to perform authentication.
     /// </summary>
+    [Key]
     public string Secret { get; init; } = string.Empty;
 
     /// <summary>
