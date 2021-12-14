@@ -35,7 +35,7 @@ internal class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddOptions<AuthenticationOptions>()
-            .Bind(Configuration.GetSection(AuthenticationOptions.AuthenticationSection));
+            .Bind(Configuration.GetAuthenticationSection());
 
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<IKeychain>(

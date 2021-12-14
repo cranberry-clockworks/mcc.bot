@@ -34,6 +34,8 @@ namespace Mcc.Bot.Service.Migrations
                 {
                     table.PrimaryKey("PK_Vacancies", x => x.Id);
                 });
+
+            new DataSeeder().SeedTo(migrationBuilder);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
