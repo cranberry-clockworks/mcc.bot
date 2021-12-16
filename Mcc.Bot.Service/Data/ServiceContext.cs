@@ -1,24 +1,36 @@
 using Microsoft.EntityFrameworkCore;
 using Mcc.Bot.Service.Models;
+using Mcc.Bot.Service.Security;
+using Microsoft.Extensions.Options;
 
-namespace Mcc.Bot.Service.Data
+namespace Mcc.Bot.Service.Data;
+
+/// <summary>
+/// A database context provider for the service.
+/// </summary>
+internal class ServiceContext : DbContext
 {
-    public class ServiceContext : DbContext
+    /// <summary>
+    /// Creates a database context.
+    /// </summary>
+    public ServiceContext(DbContextOptions<ServiceContext> options) : base(options)
     {
-        public ServiceContext(DbContextOptions<ServiceContext> options) : base(options)
-        {
-        }
+    }
 
-        public DbSet<Permission> Permissions => Set<Permission>();
-        public DbSet<Vacancy> Vacancies => Set<Vacancy>();
+    /// <summary>
+    /// Storage of the tokens to authenticate users.
+    /// </summary>
+    public DbSet<AuthenticationToken> AuthenticationTokens => Set<AuthenticationToken>();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Permission>()
-                .HasKey(p => p.UserId);
+    /// <summary>
+    /// Storage of the opened vacancies.
+    /// </summary>
+    public DbSet<Vacancy> Vacancies => Set<Vacancy>();
 
-            modelBuilder.Entity<Vacancy>()
-                .HasKey(v => v.Id);
-        }
+    /// <summary>
+    /// Binds data models to the database context.
+    /// </summary>
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
     }
 }
