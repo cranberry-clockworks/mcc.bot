@@ -37,6 +37,8 @@ internal class Startup
         services.AddOptions<AuthenticationOptions>()
             .Bind(Configuration.GetAuthenticationSection());
 
+        services.AddSingleton<IKeychain, Keychain>();
+
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<IKeychain>(
                 (options, keychain) =>
@@ -80,8 +82,6 @@ internal class Startup
             ),
             ServiceLifetime.Transient
         );
-
-        services.AddSingleton<IKeychain, Keychain>();
 
         services.AddSingleton<ISecretGenerator, SecretGenerator>();
         services.AddTransient<IVacancyStorage, VacancyStorage>();

@@ -1,8 +1,6 @@
 ﻿using Mcc.Bot.Service.Security;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Reflection;
 
 namespace Mcc.Bot.Service.Migrations;
 
