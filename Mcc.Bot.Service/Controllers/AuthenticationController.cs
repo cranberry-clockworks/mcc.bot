@@ -111,7 +111,7 @@ public class AuthenticationController : ControllerBase
         bool canManagePermissions = false
     )
     {
-        if (canManagePermissions == false && canManagePermissions == false)
+        if (canManagePermissions == false && canManageVacancies == false)
             return BadRequest("Please pass one of the attributes.");
 
         var secret = secretGenerator.GenerateSecret();
