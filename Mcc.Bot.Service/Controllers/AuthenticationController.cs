@@ -34,6 +34,7 @@ public class AuthenticationController : ControllerBase
         ISecretGenerator secretGenerator
     )
     {
+        this.logger = logger;
         this.tokenStorage = tokenStorage;
         this.secretGenerator = secretGenerator;
 

@@ -49,7 +49,7 @@ internal class TokenStorage : ITokenStorage
         if (token is null)
             return null;
 
-        context.Remove(token);
+        context.AuthenticationTokens.Remove(token);
         await context.SaveChangesAsync();
 
         return token;
