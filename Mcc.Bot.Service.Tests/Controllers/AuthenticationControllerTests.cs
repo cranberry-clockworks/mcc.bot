@@ -49,7 +49,7 @@ internal class AuthenticationControllerTests
         var tokenStorageMock = new Mock<ITokenStorage>(MockBehavior.Strict);
         tokenStorageMock
             .Setup(x => x.StoreAuthenticationTokenAsync(It.IsAny<AuthenticationToken>()))
-            .Returns(ValueTask.CompletedTask)
+            .Returns(Task.CompletedTask)
             .Verifiable();
 
         var keychainMock = KeychainMock.CreateWithKey("{D996084E-7AE1-449F-8A01-FDDF2F4309F3}");
@@ -159,6 +159,33 @@ internal class AuthenticationControllerTests
     [Test]
     public async Task AuthenticatePassingInvalidToken()
     {
+        const ulong userId = 0xDEADBEEF;
+        const string secret = "{040869E6-1A25-4B06-B9D6-F32F986649C9}";
 
+        var loggerMock = new Mock<ILogger<AuthenticationController>>();
+
+        var tokenStorageMock = new Mock<ITokenStorage>(MockBehavior.Strict);
+        tokenStorageMock
+            .Setup(x => x.ConsumeAuthenticationTokenAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult<AuthenticationToken?>(null))
+            .Verifiable();
+
+        var keychainMock = KeychainMock.CreateWithKey("{49969BBD-0294-44F5-9A33-AAFCABFE7D3F}");
+
+        var secretGeneratorMock = new Mock<ISecretGenerator>();
+
+        var controller = new AuthenticationController(
+            loggerMock.Object,
+            tokenStorageMock.Object,
+            keychainMock.Object,
+            secretGeneratorMock.Object
+        );
+
+        var wrapped = await controller.AuthenticateAsync(userId, secret);
+
+        Assert.That(
+            wrapped.Result,
+            Is.TypeOf<ForbidResult>()
+        );
     }
 }
