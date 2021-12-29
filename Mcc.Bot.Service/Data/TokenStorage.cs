@@ -24,7 +24,7 @@ public interface ITokenStorage
     /// Store a new authentication token that can be later used to perform authentication.
     /// </summary>
     /// <param name="token">A token to store.</param>
-    ValueTask StoreAuthenticationToken(AuthenticationToken token);
+    ValueTask StoreAuthenticationTokenAsync(AuthenticationToken token);
 }
 
 /// <summary>
@@ -56,7 +56,7 @@ internal class TokenStorage : ITokenStorage
     }
 
     /// <inheritdoc />
-    public async ValueTask StoreAuthenticationToken(AuthenticationToken token)
+    public async ValueTask StoreAuthenticationTokenAsync(AuthenticationToken token)
     {
         context.Add(token);
         await context.SaveChangesAsync();

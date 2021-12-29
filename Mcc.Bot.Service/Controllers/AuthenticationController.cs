@@ -122,7 +122,7 @@ public class AuthenticationController : ControllerBase
             CanManagePermissions = canManagePermissions
         };
 
-        await tokenStorage.StoreAuthenticationToken(token);
+        await tokenStorage.StoreAuthenticationTokenAsync(token);
         return Ok(secret);
     }
 }
