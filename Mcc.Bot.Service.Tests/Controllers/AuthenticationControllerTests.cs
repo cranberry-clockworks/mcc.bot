@@ -42,13 +42,13 @@ internal class AuthenticationControllerTests
     [TestCase(true, false)]
     [TestCase(false, true)]
     [TestCase(true, true)]
-    public async Task EmitTokenTest(bool canManageVacancies, bool canManagePermissions)
+    public async Task EmitNewToken(bool canManageVacancies, bool canManagePermissions)
     {
         var loggerMock = new Mock<ILogger<AuthenticationController>>();
 
         var tokenStorageMock = new Mock<ITokenStorage>(MockBehavior.Strict);
         tokenStorageMock
-            .Setup(x => x.StoreAuthenticationToken(It.IsAny<AuthenticationToken>()))
+            .Setup(x => x.StoreAuthenticationTokenAsync(It.IsAny<AuthenticationToken>()))
             .Returns(ValueTask.CompletedTask)
             .Verifiable();
 
@@ -81,5 +81,84 @@ internal class AuthenticationControllerTests
         );
 
         tokenStorageMock.Verify();
+    }
+
+    [Test]
+    [TestCase(true, true)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    [TestCase(false, false)]
+    public async Task AuthenticatePassingValidToken(
+        bool canMangePermissions,
+        bool canManageVacancies
+    )
+    {
+        const ulong userId = 0xDEADBEEF;
+        const string secret = "{E33D4E5A-5AF5-4600-91F4-E7D7C052A8CD}";
+
+        var loggerMock = new Mock<ILogger<AuthenticationController>>();
+
+        var tokenStorageMock = new Mock<ITokenStorage>(MockBehavior.Strict);
+        tokenStorageMock
+            .Setup(
+                x => x.ConsumeAuthenticationTokenAsync(
+                    It.Is<string>(s => s.Equals(secret))
+                )
+            )
+            .ReturnsAsync(new AuthenticationToken()
+            {
+                Secret = secret,
+                CanManagePermissions = canMangePermissions,
+                CanManageVacancies = canManageVacancies
+            })
+            .Verifiable();
+
+        var keychainMock = KeychainMock.CreateWithKey("{77DFA8F4-429C-48B4-A71F-7399C1B75431}");
+
+        var secretGeneratorMock = new Mock<ISecretGenerator>();
+
+        var controller = new AuthenticationController(
+            loggerMock.Object,
+            tokenStorageMock.Object,
+            keychainMock.Object,
+            secretGeneratorMock.Object
+        );
+
+        var wrapped = await controller.AuthenticateAsync(userId, secret);
+
+        Assert.That(
+            wrapped.Result,
+            Is.TypeOf<OkObjectResult>()
+        );
+
+        var result = wrapped.Result as OkObjectResult;
+
+        Assert.That(
+            result!.Value,
+            Is.TypeOf<Cookie>()
+        );
+
+        var token = result.Value as Cookie;
+
+        Assert.That(
+            token!.AccessToken,
+            Is.Not.Empty
+        );
+        Assert.That(
+            token.CanManagePermissions,
+            Is.EqualTo(canMangePermissions)
+        );
+        Assert.That(
+            token.CanManageVacancies,
+            Is.EqualTo(canManageVacancies)
+        );
+
+        tokenStorageMock.Verify();
+    }
+
+    [Test]
+    public async Task AuthenticatePassingInvalidToken()
+    {
+
     }
 }
