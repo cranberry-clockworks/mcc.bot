@@ -20,22 +20,19 @@ namespace Mcc.Bot.Service.Controllers;
 [Route("[controller]")]
 public class VacanciesController : ControllerBase
 {
-    ILogger<VacanciesController> logger;
+    private readonly ILogger<VacanciesController> logger;
     private readonly IVacancyStorage vacancyStorage;
-    private readonly ITokenStorage permissionStorage;
 
     /// <summary>
     /// Creates instance of the controller.
     /// </summary>
     public VacanciesController(
         ILogger<VacanciesController> logger,
-        IVacancyStorage vacancyStorage,
-        ITokenStorage permissionStorage
+        IVacancyStorage vacancyStorage
     )
     {
         this.logger = logger;
         this.vacancyStorage = vacancyStorage;
-        this.permissionStorage = permissionStorage;
     }
 
     /// <summary>
