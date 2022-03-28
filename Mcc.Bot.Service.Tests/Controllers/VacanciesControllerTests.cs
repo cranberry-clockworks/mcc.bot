@@ -1,7 +1,7 @@
 using Mcc.Bot.Service.Controllers;
 using Mcc.Bot.Service.Data;
 using Mcc.Bot.Service.Models;
-using Mcc.Bot.Service.Tests.Helpers;
+using Mcc.Bot.Service.Tests.Extensions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;

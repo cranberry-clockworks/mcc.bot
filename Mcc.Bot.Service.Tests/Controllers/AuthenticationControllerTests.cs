@@ -2,8 +2,8 @@
 using Mcc.Bot.Service.Data;
 using Mcc.Bot.Service.Models;
 using Mcc.Bot.Service.Security;
+using Mcc.Bot.Service.Tests.Extensions;
 using Mcc.Bot.Service.Tests.Mocks;
-using Mcc.Bot.Service.Tests.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 
-namespace Mcc.Bot.Service.Tests.Helpers
+namespace Mcc.Bot.Service.Tests.Extensions
 {
-    public static class ActionResultHelper
+    public static class ActionResultExtension
     {
         public static TContent UnwrapContentAsOkObjectResult<TContent>(
             this ActionResult<TContent> self
