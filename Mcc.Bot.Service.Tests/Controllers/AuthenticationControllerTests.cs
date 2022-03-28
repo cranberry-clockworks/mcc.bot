@@ -3,6 +3,7 @@ using Mcc.Bot.Service.Data;
 using Mcc.Bot.Service.Models;
 using Mcc.Bot.Service.Security;
 using Mcc.Bot.Service.Tests.Mocks;
+using Mcc.Bot.Service.Tests.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -32,10 +33,7 @@ internal class AuthenticationControllerTests
 
         var result = await controller.EmitTokenAsync(false, false);
 
-        Assert.That(
-            result.Result,
-            Is.TypeOf<BadRequestObjectResult>()
-        );
+        Assert.That(result.Result, Is.TypeOf<BadRequestObjectResult>());
     }
 
     [Test]
@@ -66,19 +64,10 @@ internal class AuthenticationControllerTests
             secretGeneratorMock.Object
         );
 
-        var wrapped = await controller.EmitTokenAsync(canManageVacancies, canManagePermissions);
-
-        Assert.That(
-            wrapped.Result,
-            Is.TypeOf<OkObjectResult>()
-        );
-
-        var result = wrapped.Result as OkObjectResult;
-
-        Assert.That(
-            result?.Value,
-            Is.TypeOf<string>().And.Not.Empty
-        );
+        var response = await controller.EmitTokenAsync(canManageVacancies, canManagePermissions);
+        var token = response.UnwrapContentAsOkObjectResult();
+        
+        Assert.That(token, Is.TypeOf<string>().And.Not.Empty);
 
         tokenStorageMock.Verify();
     }
@@ -124,34 +113,12 @@ internal class AuthenticationControllerTests
             secretGeneratorMock.Object
         );
 
-        var wrapped = await controller.AuthenticateAsync(userId, secret);
+        var response = await controller.AuthenticateAsync(userId, secret);
+        var cookie = response.UnwrapContentAsOkObjectResult();
 
-        Assert.That(
-            wrapped.Result,
-            Is.TypeOf<OkObjectResult>()
-        );
-
-        var result = wrapped.Result as OkObjectResult;
-
-        Assert.That(
-            result!.Value,
-            Is.TypeOf<Cookie>()
-        );
-
-        var token = result.Value as Cookie;
-
-        Assert.That(
-            token!.AccessToken,
-            Is.Not.Empty
-        );
-        Assert.That(
-            token.CanManagePermissions,
-            Is.EqualTo(canMangePermissions)
-        );
-        Assert.That(
-            token.CanManageVacancies,
-            Is.EqualTo(canManageVacancies)
-        );
+        Assert.That(cookie.AccessToken, Is.Not.Empty);
+        Assert.That(cookie.CanManagePermissions, Is.EqualTo(canMangePermissions));
+        Assert.That(cookie.CanManageVacancies, Is.EqualTo(canManageVacancies));
 
         tokenStorageMock.Verify();
     }
@@ -183,9 +150,6 @@ internal class AuthenticationControllerTests
 
         var wrapped = await controller.AuthenticateAsync(userId, secret);
 
-        Assert.That(
-            wrapped.Result,
-            Is.TypeOf<ForbidResult>()
-        );
+        Assert.That(wrapped.Result, Is.TypeOf<ForbidResult>());
     }
 }
