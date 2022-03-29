@@ -48,7 +48,7 @@ public class VacanciesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<VacancyShortDescription>>> GetAllVacanciesAsync()
     {
-        var list = await vacancyStorage.ListAllVacanciesHeaders();
+        var list = await vacancyStorage.ListAllVacanciesHeadersAsync();
         return Ok(list);
     }
 
