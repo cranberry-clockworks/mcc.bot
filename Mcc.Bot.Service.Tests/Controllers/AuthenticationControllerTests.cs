@@ -65,7 +65,7 @@ internal class AuthenticationControllerTests
         );
 
         var response = await controller.EmitTokenAsync(canManageVacancies, canManagePermissions);
-        var token = response.UnwrapContentAsOkObjectResult();
+        var token = response.UnwrapResponseAsOkObjectResult();
         
         Assert.That(token, Is.TypeOf<string>().And.Not.Empty);
 
@@ -114,7 +114,7 @@ internal class AuthenticationControllerTests
         );
 
         var response = await controller.AuthenticateAsync(userId, secret);
-        var cookie = response.UnwrapContentAsOkObjectResult();
+        var cookie = response.UnwrapResponseAsOkObjectResult();
 
         Assert.That(cookie.AccessToken, Is.Not.Empty);
         Assert.That(cookie.CanManagePermissions, Is.EqualTo(canMangePermissions));
