@@ -22,17 +22,20 @@ public class VacanciesController : ControllerBase
 {
     private readonly ILogger<VacanciesController> logger;
     private readonly IVacancyStorage vacancyStorage;
+    private readonly IHttpContextAccessor httpContextAccessor;
 
     /// <summary>
     /// Creates instance of the controller.
     /// </summary>
     public VacanciesController(
         ILogger<VacanciesController> logger,
-        IVacancyStorage vacancyStorage
+        IVacancyStorage vacancyStorage,
+        IHttpContextAccessor httpContextAccessor
     )
     {
         this.logger = logger;
         this.vacancyStorage = vacancyStorage;
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     /// <summary>
@@ -85,19 +88,19 @@ public class VacanciesController : ControllerBase
     /// A detailed description of the vacancy.
     /// </param>
     /// <returns>
-    /// An id of the new vacancy.
+    /// Created vacancy instance.
     /// </returns>
     [HttpPost]
     [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<Guid>> OpenVacancyAsync(
+    public async Task<ActionResult<Vacancy>> OpenVacancyAsync(
         [Required][FromForm] string title,
         [Required][FromForm] string description)
     {
-        var userId = HttpContext.User.Identity?.GetUserId() ?? null;
-        if (userId is null)
+        var userId = httpContextAccessor.HttpContext?.User.Identity?.GetUserId();
+        if (userId == null)
             return BadRequest();
 
         if (string.IsNullOrEmpty(title))
@@ -125,12 +128,15 @@ public class VacanciesController : ControllerBase
     /// <param name="id">
     /// An unique id of the vacancy to close.
     /// </param>
+    /// <returns>
+    /// The id of the deleted (or not found) vacancy.
+    /// </returns>
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CloseVacancyAsync([FromRoute] Guid id)
+    public async Task<ActionResult<Guid>> CloseVacancyAsync([FromRoute] Guid id)
     {
         try
         {
@@ -138,12 +144,12 @@ public class VacanciesController : ControllerBase
 
             logger.LogDebug("Closed vacancy. Id: {VacancyId}", id);
 
-            return Ok();
+            return Ok(id);
         }
         catch (InvalidOperationException)
         {
             logger.LogWarning("Tried to close not existing vacancy. Id: {VacancyId}", id);
-            return NotFound();
+            return NotFound(id);
         }
     }
 }
