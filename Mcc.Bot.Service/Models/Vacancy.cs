@@ -6,7 +6,7 @@ namespace Mcc.Bot.Service.Models;
 /// <summary>
 /// A short description of the vacancy
 /// </summary>
-public class VacancyShortDescription
+public record VacancyShortDescription
 {
     /// <summary>
     /// A unique id of the vacancy.
@@ -23,7 +23,7 @@ public class VacancyShortDescription
 /// <summary>
 /// A full description of the vacancy.
 /// </summary>
-public class Vacancy : VacancyShortDescription
+public record Vacancy : VacancyShortDescription
 {
     /// <summary>
     /// An id of the user that created and owns the vacancy.

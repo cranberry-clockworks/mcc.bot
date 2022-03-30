@@ -18,7 +18,7 @@ public interface IVacancyStorage
     /// <param name="vacancy">
     /// A new vacancy to store.
     /// </param>
-    ValueTask AddVacancyAsync(Vacancy vacancy);
+    Task AddVacancyAsync(Vacancy vacancy);
 
     /// <summary>
     /// Removes the vacancy by given id.
@@ -26,13 +26,13 @@ public interface IVacancyStorage
     /// <param name="id">
     /// An id of the removed vacancy.
     /// </param>
-    ValueTask RemoveVacancyByIdAsync(Guid id);
+    Task RemoveVacancyByIdAsync(Guid id);
 
     /// <summary>
     /// Get all short description of the open vacancies.
     /// </summary>
     /// <returns>List of short description of the vacancies.</returns>
-    ValueTask<IList<VacancyShortDescription>> ListAllVacanciesHeaders();
+    Task<IList<VacancyShortDescription>> ListAllVacanciesHeadersAsync();
 
     /// <summary>
     /// Get full description of the vacancy by given id.
@@ -40,8 +40,13 @@ public interface IVacancyStorage
     /// <param name="id">
     /// An id of the open vacancy.
     /// </param>
-    /// <returns>A full description of the vacancy.</returns>
-    ValueTask<Vacancy> GetVacancyByIdAsync(Guid id);
+    /// <returns>
+    /// A full description of the vacancy.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Raised when vacancy not found by the given id.
+    /// </exception>
+    Task<Vacancy> GetVacancyByIdAsync(Guid id);
 }
 
 /// <summary>
@@ -59,15 +64,13 @@ internal class VacancyStorage : IVacancyStorage
         this.context = context;
     }
 
-    /// <inheritdoc />
-    public async ValueTask AddVacancyAsync(Vacancy vacancy)
+    public async Task AddVacancyAsync(Vacancy vacancy)
     {
         await context.Vacancies.AddAsync(vacancy);
         await context.SaveChangesAsync();
     }
 
-    /// <inheritdoc />
-    public async ValueTask RemoveVacancyByIdAsync(Guid vacancyId)
+    public async Task RemoveVacancyByIdAsync(Guid vacancyId)
     {
         var delete = await context.Vacancies.FindAsync(vacancyId);
         if (delete == default)
@@ -81,8 +84,7 @@ internal class VacancyStorage : IVacancyStorage
         await context.SaveChangesAsync();
     }
 
-    /// <inheritdoc />
-    public async ValueTask<Vacancy> GetVacancyByIdAsync(Guid id)
+    public async Task<Vacancy> GetVacancyByIdAsync(Guid id)
     {
         var vacancy = await context.Vacancies.FindAsync(id);
 
@@ -94,8 +96,7 @@ internal class VacancyStorage : IVacancyStorage
         return vacancy;
     }
 
-    /// <inheritdoc />
-    public async ValueTask<IList<VacancyShortDescription>> ListAllVacanciesHeaders()
+    public async Task<IList<VacancyShortDescription>> ListAllVacanciesHeadersAsync()
     {
         return await context.Vacancies.Select(
             v => new VacancyShortDescription()

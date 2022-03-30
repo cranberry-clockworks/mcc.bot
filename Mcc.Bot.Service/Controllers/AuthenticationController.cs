@@ -34,6 +34,7 @@ public class AuthenticationController : ControllerBase
         ISecretGenerator secretGenerator
     )
     {
+        this.logger = logger;
         this.tokenStorage = tokenStorage;
         this.secretGenerator = secretGenerator;
 
@@ -110,7 +111,7 @@ public class AuthenticationController : ControllerBase
         bool canManagePermissions = false
     )
     {
-        if (canManagePermissions == false && canManagePermissions == false)
+        if (canManagePermissions == false && canManageVacancies == false)
             return BadRequest("Please pass one of the attributes.");
 
         var secret = secretGenerator.GenerateSecret();
@@ -121,7 +122,7 @@ public class AuthenticationController : ControllerBase
             CanManagePermissions = canManagePermissions
         };
 
-        await tokenStorage.StoreAuthenticationToken(token);
+        await tokenStorage.StoreAuthenticationTokenAsync(token);
         return Ok(secret);
     }
 }

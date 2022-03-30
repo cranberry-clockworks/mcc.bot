@@ -29,8 +29,10 @@ internal static class IHostExtension
     public static IHost MigrateDatabase(this IHost host)
     {
         using var scope = host.Services.CreateScope();
-        using var context = scope.ServiceProvider.GetRequiredService<ServiceContext>();
-        context.Database.Migrate();
+        var migrator = scope.ServiceProvider.GetRequiredService<DatabaseMigrator>();
+        
+        migrator.Migrate();
+
         return host;
     }
 }

@@ -18,13 +18,13 @@ public interface ITokenStorage
     /// <returns>
     /// An authentication token. If the token not found by secret the method returns <c>null</c>.
     /// </returns>
-    ValueTask<AuthenticationToken?> ConsumeAuthenticationTokenAsync(string secret);
+    Task<AuthenticationToken?> ConsumeAuthenticationTokenAsync(string secret);
 
     /// <summary>
     /// Store a new authentication token that can be later used to perform authentication.
     /// </summary>
     /// <param name="token">A token to store.</param>
-    ValueTask StoreAuthenticationToken(AuthenticationToken token);
+    Task StoreAuthenticationTokenAsync(AuthenticationToken token);
 }
 
 /// <summary>
@@ -43,20 +43,20 @@ internal class TokenStorage : ITokenStorage
     }
 
     /// <inheritdoc />
-    public async ValueTask<AuthenticationToken?> ConsumeAuthenticationTokenAsync(string secret)
+    public async Task<AuthenticationToken?> ConsumeAuthenticationTokenAsync(string secret)
     {
         var token = await context.AuthenticationTokens.FindAsync(secret);
         if (token is null)
             return null;
 
-        context.Remove(token);
+        context.AuthenticationTokens.Remove(token);
         await context.SaveChangesAsync();
 
         return token;
     }
 
     /// <inheritdoc />
-    public async ValueTask StoreAuthenticationToken(AuthenticationToken token)
+    public async Task StoreAuthenticationTokenAsync(AuthenticationToken token)
     {
         context.Add(token);
         await context.SaveChangesAsync();

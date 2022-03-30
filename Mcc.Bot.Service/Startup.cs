@@ -83,6 +83,8 @@ internal class Startup
             ServiceLifetime.Transient
         );
 
+        services.AddScoped<DatabaseMigrator>();
+
         services.AddSingleton<ISecretGenerator, SecretGenerator>();
         services.AddTransient<IVacancyStorage, VacancyStorage>();
         services.AddTransient<ITokenStorage, TokenStorage>();
