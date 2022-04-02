@@ -19,7 +19,6 @@ public interface ISecretGenerator
 /// </summary>
 internal class SecretGenerator : ISecretGenerator
 {
-    /// <inheritdoc />
     public string GenerateSecret()
         => Guid.NewGuid().ToString();
 }

@@ -73,7 +73,7 @@ public class AuthenticationController : ControllerBase
             return Forbid();
         }
 
-        var identity = Policices.CreateClaimIdentity(userId, token);
+        var identity = Policies.CreateClaimIdentity(userId, token);
         var jwt = new JwtSecurityToken(
             issuer: JwtConfigurator.Issuer,
             audience: JwtConfigurator.Audience,
@@ -105,7 +105,7 @@ public class AuthenticationController : ControllerBase
     /// A secret token to use for authorization.
     /// </returns>
     [HttpPost("Secret")]
-    [Authorize(Policy = Policices.CanManagePermissionsPolicy)]
+    [Authorize(Policy = Policies.CanManagePermissionsPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<string>> EmitTokenAsync(
