@@ -9,7 +9,7 @@ namespace Mcc.Bot.Service.Security;
 /// <summary>
 /// A class to hold information about authorization policies.
 /// </summary>
-internal static class Policices
+internal static class Policies
 {
     public const string CanManageVacanciesPolicy = canManageVacanciesClaimName;
     public const string CanManagePermissionsPolicy = canManagePermissionsClaimName;

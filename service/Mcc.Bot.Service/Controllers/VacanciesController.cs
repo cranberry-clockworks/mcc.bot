@@ -91,7 +91,7 @@ public class VacanciesController : ControllerBase
     /// Created vacancy instance.
     /// </returns>
     [HttpPost]
-    [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
+    [Authorize(Policy = Policies.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -129,10 +129,10 @@ public class VacanciesController : ControllerBase
     /// An unique id of the vacancy to close.
     /// </param>
     /// <returns>
-    /// The id of the deleted (or not found) vacancy.
+    /// The id of the closed (or not found) vacancy.
     /// </returns>
     [HttpDelete("{id:guid}")]
-    [Authorize(Policy = Policices.CanManageVacanciesPolicy)]
+    [Authorize(Policy = Policies.CanManageVacanciesPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

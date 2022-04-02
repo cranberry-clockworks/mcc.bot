@@ -6,9 +6,6 @@ using Microsoft.Extensions.Hosting;
 
 namespace Mcc.Bot.Service;
 
-/// <summary>
-/// A main class of the service application.
-/// </summary>
 internal class Program
 {
     public static void Main(string[] args)

@@ -7,12 +7,27 @@ using Microsoft.Extensions.Options;
 
 namespace Mcc.Bot.Service.Data;
 
+/// <summary>
+/// The data base migration applier. 
+/// </summary>
 internal class DatabaseMigrator
 {
     private readonly ILogger<DatabaseMigrator> logger;
     private readonly ServiceContext context;
     private readonly AuthenticationOptions authenticationOptions;
 
+    /// <summary>
+    /// Creates the migrator.
+    /// </summary>
+    /// <param name="logger">
+    /// A logger to write messages.
+    /// </param>
+    /// <param name="context">
+    /// The database context instance to perform migration for.
+    /// </param>
+    /// <param name="authenticationOptions">
+    /// An authentication options that should be populated into the database.
+    /// </param>
     public DatabaseMigrator(
         ILogger<DatabaseMigrator> logger,
         ServiceContext context,
@@ -24,6 +39,9 @@ internal class DatabaseMigrator
         this.authenticationOptions = authenticationOptions.Value;
     }
 
+    /// <summary>
+    /// Perform migration and seed the data if needed.
+    /// </summary>
     public void Migrate()
     {
         logger.LogInformation("Start database migration");

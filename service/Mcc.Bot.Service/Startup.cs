@@ -65,12 +65,12 @@ internal class Startup
             options =>
             {
                 options.AddPolicy(
-                    Policices.CanManageVacanciesPolicy,
-                    Policices.CanManageVacanciesPolicyBuilder
+                    Policies.CanManageVacanciesPolicy,
+                    Policies.CanManageVacanciesPolicyBuilder
                 );
                 options.AddPolicy(
-                    Policices.CanManagePermissionsPolicy,
-                    Policices.CanManagePermissionsPolicyBuilder
+                    Policies.CanManagePermissionsPolicy,
+                    Policies.CanManagePermissionsPolicyBuilder
                 );
             }
         );

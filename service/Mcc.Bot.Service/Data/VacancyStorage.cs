@@ -31,7 +31,9 @@ public interface IVacancyStorage
     /// <summary>
     /// Get all short description of the open vacancies.
     /// </summary>
-    /// <returns>List of short description of the vacancies.</returns>
+    /// <returns>
+    /// List of short description of the vacancies.
+    /// </returns>
     Task<IList<VacancyShortDescription>> ListAllVacanciesHeadersAsync();
 
     /// <summary>

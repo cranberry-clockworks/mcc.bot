@@ -1,7 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Mcc.Bot.Service.Models;
-using Mcc.Bot.Service.Security;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mcc.Bot.Service.Data;
 
@@ -26,11 +24,4 @@ internal class ServiceContext : DbContext
     /// Storage of the opened vacancies.
     /// </summary>
     public DbSet<Vacancy> Vacancies => Set<Vacancy>();
-
-    /// <summary>
-    /// Binds data models to the database context.
-    /// </summary>
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-    }
 }

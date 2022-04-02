@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Mcc.Bot.Service.Migrations
 {
-    public partial class Initial : Migration
+    internal partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
