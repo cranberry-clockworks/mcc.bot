@@ -16,14 +16,17 @@ public interface ITokenStorage
     /// A secret used to find proper authentication token.
     /// </param>
     /// <returns>
-    /// An authentication token. If the token not found by secret the method returns <c>null</c>.
+    /// An authentication token. If the token not found by secret the method returns
+    /// <see langword="null"/>.
     /// </returns>
     Task<AuthenticationToken?> ConsumeAuthenticationTokenAsync(string secret);
 
     /// <summary>
     /// Store a new authentication token that can be later used to perform authentication.
     /// </summary>
-    /// <param name="token">A token to store.</param>
+    /// <param name="token">
+    /// A token to store.
+    /// </param>
     Task StoreAuthenticationTokenAsync(AuthenticationToken token);
 }
 
@@ -42,7 +45,6 @@ internal class TokenStorage : ITokenStorage
         this.context = context;
     }
 
-    /// <inheritdoc />
     public async Task<AuthenticationToken?> ConsumeAuthenticationTokenAsync(string secret)
     {
         var token = await context.AuthenticationTokens.FindAsync(secret);
@@ -55,7 +57,6 @@ internal class TokenStorage : ITokenStorage
         return token;
     }
 
-    /// <inheritdoc />
     public async Task StoreAuthenticationTokenAsync(AuthenticationToken token)
     {
         context.Add(token);
