@@ -46,17 +46,18 @@ public class AuthenticationController : ControllerBase
 
     /// <summary>
     /// Authenticates the user. In case of success authorization the secret can't be used for
-    /// another authentication.
+    /// authentication.
     /// </summary>
     /// <param name="userId">
     /// An unique integer number that identifies the user.
     /// </param>
     /// <param name="secret">
-    /// A special string that maps to granted user privileges.
-    /// The secret could be emitted by another user with right to manage permissions.
-    /// Could be used only once to authenticate.
+    /// A special string that maps to granted user privileges. The secret could be emitted by
+    /// another user with right to manage permissions. Could be used only once for authentication.
     /// </param>
-    /// <returns>The authentication token with granted permission for the user.</returns>
+    /// <returns>
+    /// The authentication token with granted permissions for the user.
+    /// </returns>
     [HttpPost("Token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -68,7 +69,7 @@ public class AuthenticationController : ControllerBase
         var token = await tokenStorage.ConsumeAuthenticationTokenAsync(secret);
         if (token is null)
         {
-            logger.LogWarning("Authentication attempt with not emitted key.");
+            logger.LogWarning("Authentication attempted with not emitted key.");
             return Forbid();
         }
 
@@ -98,10 +99,11 @@ public class AuthenticationController : ControllerBase
     /// If the user could create and close vacancies.
     /// </param>
     /// <param name="canManagePermissions">
-    /// If the user could emit another tokens and manage
-    /// permission of another users.
+    /// If the user could emit another tokens and manage permission of another users.
     /// </param>
-    /// <returns></returns>
+    /// <returns>
+    /// A secret token to use for authorization.
+    /// </returns>
     [HttpPost("Secret")]
     [Authorize(Policy = Policices.CanManagePermissionsPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -112,7 +114,7 @@ public class AuthenticationController : ControllerBase
     )
     {
         if (canManagePermissions == false && canManageVacancies == false)
-            return BadRequest("Please pass one of the attributes.");
+            return BadRequest("There should be at least one allowed permission.");
 
         var secret = secretGenerator.GenerateSecret();
         var token = new AuthenticationToken()
